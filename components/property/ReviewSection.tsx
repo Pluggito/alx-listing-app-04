@@ -1,21 +1,44 @@
-const ReviewSection: React.FC<{ reviews: any[] }> = ({ reviews }) => {
-  return (
-    <div className="mt-8">
-      <h3 className="text-2xl font-semibold">Reviews</h3>
-      {reviews.map((review, index) => (
-        <div key={index} className="border-b pb-4 mb-4">
-          <div className="flex items-center">
-            <img src={review.avatar} alt={review.name} className="w-12 h-12 rounded-full mr-4" />
-            <div>
-              <p className="font-bold">{review.name}</p>
-              <p className="text-yellow-500">{review.rating} stars</p>
-            </div>
-          </div>
-          <p>{review.comment}</p>
-        </div>
-      ))}
-    </div>
-  );
-};
+import axios from "axios";
+import { useState, FormEvent } from "react";
 
-export default ReviewSection;
+export default function BookingForm() {
+  const [formData, setFormData] = useState({
+    firstName: "",
+    lastName: "",
+    email: "",
+    phoneNumber: "",
+    cardNumber: "",
+    expirationDate: "",
+    cvv: "",
+    billingAddress: "",
+  });
+
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    setLoading(true);
+    setError(null);
+
+    try {
+      const response = await axios.post("/api/bookings", formData);
+      alert("Booking confirmed!");
+    } catch (error) {
+      setError("Failed to submit booking.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <form onSubmit={handleSubmit}>
+      {/* Form fields for booking details */}
+      <button type="submit" disabled={loading}>
+        {loading ? "Processing..." : "Confirm & Pay"}
+      </button>
+      {error && <p className="text-red-500">{error}</p>}
+    </form>
+  );
+}
+
